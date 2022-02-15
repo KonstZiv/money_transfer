@@ -1,0 +1,28 @@
+# Docker-compose configuration for development
+
+version: '3.8'
+
+env_file: .env
+
+services:
+  web:
+    build: ./app
+    command: uvicorn ./src/main:app --host 0.0.0.0 --port 8000 --reload
+    volumes:
+      - ./app/src:/app/src
+    depends_on:
+      - postgres
+
+  postgres:
+    image: posgresql:14
+    #restart: always
+    environment:
+      # credentials taken from .env file
+      POSTGRES_USER: "${POSTGRES_USER-transfer}"
+      POSTGRES_PASSWORD: "${POSTGRES_PASSWORD-transfer}"
+      POSTGRES_DB: "${POSTGRES_DATABASE_NAME-transfer}"
+
+    volumes:
+      - ./postgres_data:/var/lib/postgresql/data
+    ports:
+      - 5432:5432
