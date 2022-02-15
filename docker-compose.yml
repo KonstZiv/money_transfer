@@ -2,10 +2,9 @@
 
 version: '3.8'
 
-env_file: .env
-
 services:
   web:
+    env_file: .env
     build: ./app
     command: uvicorn ./src/main:app --host 0.0.0.0 --port 8000 --reload
     volumes:
@@ -14,6 +13,7 @@ services:
       - postgres
 
   postgres:
+    env_file: .env
     image: posgresql:14
     #restart: always
     environment:
