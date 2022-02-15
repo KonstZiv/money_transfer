@@ -5,16 +5,19 @@ version: '3.8'
 services:
   web:
     env_file: .env
-    build: ./app
-    command: uvicorn ./src/main:app --host 0.0.0.0 --port 8000 --reload
+    build: ./
+    working_dir: /app/src/
+    command: uvicorn main:app --host 0.0.0.0 --port 8000 --reload
     volumes:
       - ./app/src:/app/src
+    ports:
+      - '8000:8000'
     depends_on:
       - postgres
 
   postgres:
     env_file: .env
-    image: posgresql:14
+    image: postgres:14
     #restart: always
     environment:
       # credentials taken from .env file
