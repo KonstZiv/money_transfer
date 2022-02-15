@@ -1,0 +1,27 @@
+version: '3.8'
+
+services:
+  web:
+    env_file: .env
+    build: ./
+    working_dir: /app/src/
+    command: uvicorn main:app --host 0.0.0.0 --port 8000 --reload
+    volumes:
+      - ./app/src:/app/src
+    ports:
+      - '8000:8000'
+    depends_on:
+      - postgres
+
+  postgres:
+    env_file: .env
+    image: postgres:14
+    environment:
+      POSTGRES_USER: "${POSTGRES_USER-transfer}"
+      POSTGRES_PASSWORD: "${POSTGRES_PASSWORD-transfer}"
+      POSTGRES_DB: "${POSTGRES_DATABASE_NAME-transfer}"
+
+    volumes:
+      - ./postgres_data:/var/lib/postgresql/data
+    ports:
+      - 5432:5432
