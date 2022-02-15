@@ -2,4 +2,4 @@
 .env
 venv/
 doc/
-
+postgres_data/
