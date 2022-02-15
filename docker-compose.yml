@@ -1,5 +1,3 @@
-# Docker-compose configuration for development
-
 version: '3.8'
 
 services:
@@ -18,9 +16,7 @@ services:
   postgres:
     env_file: .env
     image: postgres:14
-    #restart: always
     environment:
-      # credentials taken from .env file
       POSTGRES_USER: "${POSTGRES_USER-transfer}"
       POSTGRES_PASSWORD: "${POSTGRES_PASSWORD-transfer}"
       POSTGRES_DB: "${POSTGRES_DATABASE_NAME-transfer}"
