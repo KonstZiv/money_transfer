@@ -1,15 +1,11 @@
+import decimal
+
 from piccolo.apps.migrations.auto.migration_manager import MigrationManager
-from piccolo.columns.base import OnDelete
-from piccolo.columns.base import OnUpdate
-from piccolo.columns.column_types import Date
-from piccolo.columns.column_types import ForeignKey
-from piccolo.columns.column_types import Numeric
-from piccolo.columns.column_types import Serial
-from piccolo.columns.column_types import Varchar
+from piccolo.columns.base import OnDelete, OnUpdate
+from piccolo.columns.column_types import Date, ForeignKey, Numeric, Serial, Varchar
 from piccolo.columns.defaults.date import DateNow
 from piccolo.columns.indexes import IndexMethod
 from piccolo.table import Table
-import decimal
 
 
 class Currency(Table, tablename="currency"):

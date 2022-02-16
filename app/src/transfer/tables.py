@@ -1,4 +1,4 @@
-from piccolo.columns.column_types import Date, ForeignKey, Varchar, Numeric
+from piccolo.columns.column_types import Date, ForeignKey, Numeric, Varchar
 from piccolo.table import Table
 
 
@@ -25,21 +25,23 @@ class Customer(Table):
     document_ident_2 = Varchar(length=50)
     email = Varchar(length=255)
 
-class Currency(Table):#
+
+class Currency(Table):  #
     """
     this class describe k#ind of currency (ISO code), with may be in the system,
     according with https:#//en.wikipedia.org/wiki/List_of_circulating_currencies
     """
+
     name = Varchar(length=3)
+
 
 class Account(Table):
     """
-    the account number is bound to the user and currency. But the one used for money 
+    the account number is bound to the user and currency. But the one used for money
     transfers is the user id - then the account is multi-currency
     when storing the amount of money in the account, the decimal data type is used
     """
+
     currency = ForeignKey(references=Currency)
     user = ForeignKey(references=Customer)
-    amount = Numeric()                      #return Decimal type
-
-
+    amount = Numeric()  # return Decimal type
