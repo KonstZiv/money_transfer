@@ -1,6 +1,8 @@
 black==22.1.0
 fastapi==0.73.0
-piccolo==0.69.2
+piccolo[postgres]
 mypy
 isort
 flake8
+environs
+uvicorn
