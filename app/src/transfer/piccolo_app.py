@@ -6,6 +6,11 @@ the APP_CONFIG.
 import os
 
 from piccolo.conf.apps import AppConfig
+from .tables import (
+    Customer,
+    Currency,
+    Account
+)
 
 
 CURRENT_DIRECTORY = os.path.dirname(os.path.abspath(__file__))
@@ -16,7 +21,7 @@ APP_CONFIG = AppConfig(
     migrations_folder_path=os.path.join(
         CURRENT_DIRECTORY, "piccolo_migrations"
     ),
-    table_classes=[],
+    table_classes=[Customer, Currency, Account],
     migration_dependencies=[],
     commands=[],
 )
