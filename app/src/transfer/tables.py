@@ -1,25 +1,28 @@
-from piccolo.columns.column_types import Date, ForeignKey, Numeric, Varchar
+from enum import Enum, unique
+
+
+from piccolo.columns.column_types import Date, ForeignKey, Numeric, Varchar, Integer
 from piccolo.table import Table
-
-
-class Role(Table):
-    """
-    describes possible roles in the system (as castomer/operator/administrator)
-    """
-
-    name = Varchar(length=20)
 
 
 class Customer(Table):
     """
     describes all users in the system - customer, operator and administrator
     """
+    @unique
+    class Role(Enum):
+        """
+        describes possible roles in the system (as castomer/operator/administrator)
+        """
+        ADMIN = 1
+        OPERATOR = 2
+        CUSTOMER = 3
 
-    name = Varchar(length=100)
+    name = Varchar(length=100, null = False)
     surname = Varchar(length=100)
     patronomic = Varchar(length=100, null=True)
     date_of_birth = Date(null=True)
-    role = ForeignKey(references=Role)
+    role = Integer(choice=Role)
     document_name = Varchar(length=50)
     document_ident_1 = Varchar(length=50)
     document_ident_2 = Varchar(length=50)
