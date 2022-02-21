@@ -10,3 +10,4 @@ lxml
 pandas
 Faker
 pydantic[email]
+PyJWT
