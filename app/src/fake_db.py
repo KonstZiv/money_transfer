@@ -1,5 +1,8 @@
+import asyncio
+
 from faker import Faker
 from datetime import date
+
 
 from app.models import UserModel
 
@@ -18,3 +21,8 @@ async def fake_user(num: int) -> None:
             date_of_birth= fake.date_between_dates(date_start, date_finish),
             email=fake.ascii_email()
         ).save()
+
+
+if __name__ == '__main__':
+    num = 10
+    asyncio.run(fake_user((num)))

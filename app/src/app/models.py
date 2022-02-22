@@ -1,28 +1,50 @@
-from datetime import date
-from pydantic import BaseModel, EmailStr, conint, constr
-from transfer.tables import Customer
+from pydantic import BaseModel, Field, EmailStr, PastDate, ConstrainedStr
+from app.constants import Role
 
-class UserModel(BaseModel):
-    name: constr(max_length=100)
-    surname: constr(max_length=100)
+
+class StrName(ConstrainedStr):
+    max_lenght = 100
+
+class StrDocum(ConstrainedStr):
+    max_lenght = 50
+
+
+class Customer(BaseModel):
+    name: StrName
+    surname: StrName
+    patronomic: str = Field(None, max_length=100)
+    date_of_birth: PastDate = Field(None)
+    role: Role = Field(None)
+    document_name: str = Field(None, max_length=50)
+    document_ident_1: str = Field(None, max_length=50)
+    document_ident_2: str = Field(None, max_length=50)
     email: EmailStr
-    patronomic: constr(max_length=100) | None
-    date_of_birth: date | None
-    role: conint(ge=1, le=3) = 1
-    document_name: constr(max_length=50) | None
-    document_ident_1: constr(max_length=50) | None
-    document_ident_2: constr(max_length=50) | None
 
-    def save(self):
-        Customer.insert(
-            name=self.name,
-            surname=self.surname,
-            email=self.email,
-            patronomic=self.patronomic,
-            date_of_birth=self.date_of_birth,
-            document_name=self.document_name,
-            document_ident_1=self.document_ident_1,
-            document_ident_2=self.document_ident_2,
-            role = self.role
-        ).run_sync()
+    class Config:
+        orm_mode=True
+
+
+class CustomerUpdate(BaseModel):
+    id: int
+    name: StrName
+    surname: StrName
+    patronomic: str = Field(None, max_length=100)
+    date_of_birth: PastDate
+    role: Role = Role.CUSTOMER
+    document_name: StrDocum
+    document_ident_1: StrDocum
+    document_ident_2: str = Field(None, max_length=50)
+    email: EmailStr
+
+    class Config:
+        orm_mode=True
+
+
+
+
+
+
+
+
+
 
