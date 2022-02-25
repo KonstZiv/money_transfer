@@ -1,50 +1,62 @@
-from pydantic import BaseModel, Field, EmailStr, PastDate, ConstrainedStr
+from typing import Optional
+from uuid import UUID
+
 from app.constants import Role
+from pydantic import BaseModel, ConstrainedStr, EmailStr, Field, PastDate
 
 
 class StrName(ConstrainedStr):
+    """
+    class provides validation of a string with a length of up to 100 characters
+    """
+
     max_lenght = 100
 
-class StrDocum(ConstrainedStr):
+
+class StrDocument(ConstrainedStr):
+    """
+    class provides validation of a string with a length of up to 100 characters
+    """
+
     max_lenght = 50
 
 
 class Customer(BaseModel):
-    name: StrName
-    surname: StrName
-    patronomic: str = Field(None, max_length=100)
-    date_of_birth: PastDate = Field(None)
-    role: Role = Field(None)
-    document_name: str = Field(None, max_length=50)
-    document_ident_1: str = Field(None, max_length=50)
-    document_ident_2: str = Field(None, max_length=50)
+    """
+    the constraint model matches tables.Customer: required fields (firstname,
+    lastname, email) optional fields (date_og_birth, role, document_name,
+    document_ident_1, document_ident_2). Provides deeper type
+    checking: pastedata, email
+    """
+
+    account: Optional[UUID] = None
+    firstname: StrName
+    lastname: StrName
+    date_of_birth: Optional[PastDate] = None
+    role: Optional[Role] = None
+    document_name: Optional[StrDocument] = None
+    document_ident_1: Optional[StrDocument] = None
+    document_ident_2: Optional[StrDocument] = None
     email: EmailStr
 
     class Config:
-        orm_mode=True
+        orm_mode = True
 
 
-class CustomerUpdate(BaseModel):
+class CustomerUpdate(Customer):
+    """
+    the model is used to validate data during user verification operations
+    by the operator, the main difference from the Customer model is that
+    all fields are required and the id field has been added
+    """
+
     id: int
-    name: StrName
-    surname: StrName
-    patronomic: str = Field(None, max_length=100)
+    account: UUID
     date_of_birth: PastDate
     role: Role = Role.CUSTOMER
-    document_name: StrDocum
-    document_ident_1: StrDocum
+    document_name: StrDocument
+    document_ident_1: StrDocument
     document_ident_2: str = Field(None, max_length=50)
-    email: EmailStr
 
     class Config:
-        orm_mode=True
-
-
-
-
-
-
-
-
-
-
+        orm_mode = True
