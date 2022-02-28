@@ -17,7 +17,7 @@ class Customer(Table):
     """
 
     id = Serial(primary_key=True)
-    account = UUID(unique=True)
+    account_id = UUID(unique=True)
     firstname = Varchar(length=100, null=False)
     lastname = Varchar(length=100)
     date_of_birth = Date(null=True, default=None)

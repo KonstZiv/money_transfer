@@ -1,5 +1,3 @@
-import uuid
-
 from fastapi import FastAPI
 from transfer import tables
 
@@ -24,7 +22,6 @@ async def create_user(user: models.Customer) -> tables.Customer:
     """
 
     user.role = constants.Role.CUSTOMER
-    user.account = uuid.uuid4()
     user_dict = user.dict()
     new_customer = tables.Customer(**user_dict)
     await new_customer.save()

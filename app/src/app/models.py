@@ -1,8 +1,8 @@
+import uuid
 from typing import Optional
-from uuid import UUID
 
 from app.constants import Role
-from pydantic import BaseModel, ConstrainedStr, EmailStr, Field, PastDate
+from pydantic import BaseModel, ConstrainedStr, EmailStr, Field, PastDate, validator
 
 
 class StrName(ConstrainedStr):
@@ -15,7 +15,7 @@ class StrName(ConstrainedStr):
 
 class StrDocument(ConstrainedStr):
     """
-    class provides validation of a string with a length of up to 100 characters
+    class provides validation of a string with a length of up to 50 characters
     """
 
     max_lenght = 50
@@ -29,7 +29,7 @@ class Customer(BaseModel):
     checking: pastedata, email
     """
 
-    account: Optional[UUID] = None
+    account_id: Optional[uuid.UUID] = None
     firstname: StrName
     lastname: StrName
     date_of_birth: Optional[PastDate] = None
@@ -42,6 +42,10 @@ class Customer(BaseModel):
     class Config:
         orm_mode = True
 
+    @validator("account_id", pre=True, always=True)
+    def set_account_id_if_none(cls, account_id):
+        return account_id or uuid.uuid4()
+
 
 class CustomerUpdate(Customer):
     """
@@ -51,7 +55,7 @@ class CustomerUpdate(Customer):
     """
 
     id: int
-    account: UUID
+    account_id: uuid.UUID
     date_of_birth: PastDate
     role: Role = Role.CUSTOMER
     document_name: StrDocument

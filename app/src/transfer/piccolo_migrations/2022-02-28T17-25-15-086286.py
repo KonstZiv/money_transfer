@@ -38,12 +38,12 @@ class Customer(Table, tablename="customer"):
         index=False,
         index_method=IndexMethod.btree,
         choices=None,
-        db_column_name="id",
+        db_column_name=None,
         secret=False,
     )
 
 
-ID = "2022-02-25T09:07:35:866636"
+ID = "2022-02-28T17:25:15:086286"
 VERSION = "0.69.2"
 DESCRIPTION = ""
 
@@ -55,9 +55,9 @@ async def forwards():
 
     manager.add_table("Currency", tablename="currency")
 
-    manager.add_table("Account", tablename="account")
-
     manager.add_table("Customer", tablename="customer")
+
+    manager.add_table("Account", tablename="account")
 
     manager.add_column(
         table_class_name="Currency",
@@ -81,63 +81,15 @@ async def forwards():
     )
 
     manager.add_column(
-        table_class_name="Account",
-        tablename="account",
-        column_name="currency",
-        db_column_name="currency",
-        column_class_name="ForeignKey",
-        column_class=ForeignKey,
+        table_class_name="Customer",
+        tablename="customer",
+        column_name="id",
+        db_column_name="id",
+        column_class_name="Serial",
+        column_class=Serial,
         params={
-            "references": Currency,
-            "on_delete": OnDelete.cascade,
-            "on_update": OnUpdate.cascade,
-            "target_column": None,
-            "null": True,
-            "primary_key": False,
-            "unique": False,
-            "index": False,
-            "index_method": IndexMethod.btree,
-            "choices": None,
-            "db_column_name": None,
-            "secret": False,
-        },
-    )
-
-    manager.add_column(
-        table_class_name="Account",
-        tablename="account",
-        column_name="user",
-        db_column_name="user",
-        column_class_name="ForeignKey",
-        column_class=ForeignKey,
-        params={
-            "references": Customer,
-            "on_delete": OnDelete.cascade,
-            "on_update": OnUpdate.cascade,
-            "target_column": None,
-            "null": True,
-            "primary_key": False,
-            "unique": False,
-            "index": False,
-            "index_method": IndexMethod.btree,
-            "choices": None,
-            "db_column_name": None,
-            "secret": False,
-        },
-    )
-
-    manager.add_column(
-        table_class_name="Account",
-        tablename="account",
-        column_name="amount",
-        db_column_name="amount",
-        column_class_name="Numeric",
-        column_class=Numeric,
-        params={
-            "default": decimal.Decimal("0"),
-            "digits": None,
             "null": False,
-            "primary_key": False,
+            "primary_key": True,
             "unique": False,
             "index": False,
             "index_method": IndexMethod.btree,
@@ -150,8 +102,8 @@ async def forwards():
     manager.add_column(
         table_class_name="Customer",
         tablename="customer",
-        column_name="account",
-        db_column_name="account",
+        column_name="account_id",
+        db_column_name="account_id",
         column_class_name="UUID",
         column_class=UUID,
         params={
@@ -327,6 +279,73 @@ async def forwards():
             "primary_key": False,
             "unique": True,
             "index": True,
+            "index_method": IndexMethod.btree,
+            "choices": None,
+            "db_column_name": None,
+            "secret": False,
+        },
+    )
+
+    manager.add_column(
+        table_class_name="Account",
+        tablename="account",
+        column_name="currency",
+        db_column_name="currency",
+        column_class_name="ForeignKey",
+        column_class=ForeignKey,
+        params={
+            "references": Currency,
+            "on_delete": OnDelete.cascade,
+            "on_update": OnUpdate.cascade,
+            "target_column": None,
+            "null": True,
+            "primary_key": False,
+            "unique": False,
+            "index": False,
+            "index_method": IndexMethod.btree,
+            "choices": None,
+            "db_column_name": None,
+            "secret": False,
+        },
+    )
+
+    manager.add_column(
+        table_class_name="Account",
+        tablename="account",
+        column_name="user",
+        db_column_name="user",
+        column_class_name="ForeignKey",
+        column_class=ForeignKey,
+        params={
+            "references": Customer,
+            "on_delete": OnDelete.cascade,
+            "on_update": OnUpdate.cascade,
+            "target_column": None,
+            "null": True,
+            "primary_key": False,
+            "unique": False,
+            "index": False,
+            "index_method": IndexMethod.btree,
+            "choices": None,
+            "db_column_name": None,
+            "secret": False,
+        },
+    )
+
+    manager.add_column(
+        table_class_name="Account",
+        tablename="account",
+        column_name="amount",
+        db_column_name="amount",
+        column_class_name="Numeric",
+        column_class=Numeric,
+        params={
+            "default": decimal.Decimal("0"),
+            "digits": None,
+            "null": False,
+            "primary_key": False,
+            "unique": False,
+            "index": False,
             "index_method": IndexMethod.btree,
             "choices": None,
             "db_column_name": None,
