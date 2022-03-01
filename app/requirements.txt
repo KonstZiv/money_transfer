@@ -6,3 +6,8 @@ isort
 flake8
 environs
 uvicorn
+lxml
+pandas
+Faker
+pydantic[email]
+PyJWT
