@@ -6,11 +6,13 @@ from . import constants, models
 app = FastAPI()
 
 
-@app.post("/users/", response_model=models.Customer, tags=["user"])
-async def create_user(user: models.Customer) -> tables.Customer:
+@app.post("/users/", response_model=models.CustomerCreate, tags=["user"])
+async def create_user(
+                    user: models.CustomerCreate,
+                    ) -> tables.Customer:
     """
     Operation: creating a new user
-    Input: models.Customer,
+    Input: models.CustomerCreate,
         required filds: firstname, lastname, email
         optional filds: document_name, document_ident_1,
             document_ident_2, date_of_birth
@@ -28,8 +30,10 @@ async def create_user(user: models.Customer) -> tables.Customer:
     return new_customer
 
 
-@app.put("/users/", response_model=models.Customer, tags=["user"])
-async def update_user(user: models.CustomerUpdate):
+@app.put("/users/", response_model=models.CustomerCreate, tags=["user"])
+async def update_user(
+                    user: models.CustomerUpdate,
+                    ):
     """
     Operation: updating an existing user
     Input: models.CustomerUpdate,

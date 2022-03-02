@@ -2,7 +2,10 @@ import uuid
 from typing import Optional
 
 from app.constants import Role
-from pydantic import BaseModel, ConstrainedStr, EmailStr, Field, PastDate, validator
+from pydantic import (
+                BaseModel, ConstrainedStr, EmailStr,
+                Field, PastDate, validator
+                )
 
 
 class StrName(ConstrainedStr):
@@ -21,7 +24,7 @@ class StrDocument(ConstrainedStr):
     max_lenght = 50
 
 
-class Customer(BaseModel):
+class CustomerCreate(BaseModel):
     """
     the constraint model matches tables.Customer: required fields (firstname,
     lastname, email) optional fields (date_og_birth, role, document_name,
@@ -47,7 +50,7 @@ class Customer(BaseModel):
         return account_id or uuid.uuid4()
 
 
-class CustomerUpdate(Customer):
+class CustomerUpdate(CustomerCreate):
     """
     the model is used to validate data during user verification operations
     by the operator, the main difference from the Customer model is that
