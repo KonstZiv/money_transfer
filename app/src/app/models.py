@@ -3,9 +3,13 @@ from typing import Optional
 
 from app.constants import Role
 from pydantic import (
-                BaseModel, ConstrainedStr, EmailStr,
-                Field, PastDate, validator
-                )
+                    BaseModel,
+                    ConstrainedStr,
+                    EmailStr,
+                    Field,
+                    PastDate,
+                    validator
+                    )
 
 
 class StrName(ConstrainedStr):

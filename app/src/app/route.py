@@ -8,8 +8,8 @@ app = FastAPI()
 
 @app.post("/users/", response_model=models.CustomerCreate, tags=["user"])
 async def create_user(
-                    user: models.CustomerCreate,
-                    ) -> tables.Customer:
+    user: models.CustomerCreate,
+) -> tables.Customer:
     """
     Operation: creating a new user
     Input: models.CustomerCreate,
@@ -32,8 +32,8 @@ async def create_user(
 
 @app.put("/users/", response_model=models.CustomerCreate, tags=["user"])
 async def update_user(
-                    user: models.CustomerUpdate,
-                    ):
+    user: models.CustomerUpdate,
+):
     """
     Operation: updating an existing user
     Input: models.CustomerUpdate,
