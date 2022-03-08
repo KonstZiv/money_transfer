@@ -71,6 +71,7 @@ class CustomerUpdate(CustomerCreate):
     class Config:
         orm_mode = True
 
+
 class CustomerInDB(CustomerUpdate):
     """
     the model adds a field with the user's hashed password
