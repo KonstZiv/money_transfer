@@ -33,19 +33,25 @@ def get_password_hash(password):
     return pwd_context.hash(password)
 
 
-async def get_customer(customer_email: str) -> CustomerInDB:
+async def get_customer(customer_email: str) -> CustomerInDB | None:
     """
     returns all data of the user with the given email
-    (the email is unique for users in the database) 
+    (the email is unique for users in the database)
     """
     customer = await tables.Customer.objects().get(
                     tables.Customer.email == customer_email
                                                 )
+    if customer:
+        return CustomerInDB(**customer.to_dict())
+
+
+def authenticate_customer(customer_email: str, password: str):
+    customer = get_customer(customer_email)
+    if not customer:
+        return False
+    if not verify_password(password, customer.hashed_password):
+        return False
     return customer
-
-
-def authenticate_user(customer_email: str, password: str):
-    pass
 
 
 def fake_decode_token(token):
