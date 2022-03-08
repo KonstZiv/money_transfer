@@ -1,9 +1,16 @@
-from fastapi import FastAPI, Depends, HTTPException
+from datetime import timedelta
+
+from app.auth.auth_handler import (
+    JWT_ACCESS_TOKEN_EXPIRE_MINUTES,
+    authenticate_customer,
+    create_access_token,
+    get_current_user,
+)
+from fastapi import Depends, FastAPI, HTTPException, status
 from fastapi.security import OAuth2PasswordRequestForm
 from transfer import tables
 
 from . import constants, models
-from auth.auth_handler import get_current_user
 
 app = FastAPI()
 
@@ -74,38 +81,34 @@ async def update_user(
     return await tables.Customer.objects().get(tables.Customer.id == user.id)
 
 
-@app.get("/users/me")
+@app.get("/users/me", tags=["user"])
 async def read_users_me(
-    current_user: models.CustomerUpdate = Depends(get_current_user)
-                    ) -> models.CustomerUpdate:
+    current_user: models.CustomerUpdate = Depends(get_current_user),
+) -> models.CustomerUpdate:
+    """
+    test function - returns the current user
+    """
     return current_user
 
 
-@app.post("/token")
-async def login(form_data: OAuth2PasswordRequestForm = Depends()):
+@app.post("/token", response_model=models.Token, tags=["user"])
+async def login_for_access_token(
+    form_data: OAuth2PasswordRequestForm = Depends(),
+) -> dict:
     """
-    при обращении к endpoint получает как данные формы (в соотвествии
-    со спецификацией OAuth2):
-    form_data.username: str (username OAuth2)
-    form_data.password: str (password OAuth2)
-    form_data.scopes: Optional(List[str]) = None (scope.split() - OAuth2)
-    form_data.grant_type: Optional(str) = None (отличается от OAuth2)
-    form_data.client_id: Optional(str) = None
-    form_data.client_secret: Optional(str) = None
-
-    далее обращается к БД по username/password и если такого клиента нет
-    или пароль неверен райзит исключение
+    receives the authorization flow (login and password of the user) and
+    returns a token if the login and password are correct
     """
-    user_dict = fake_users_db.get(form_data.username)
-    if not user_dict:
+    # username is his email
+    customer = await authenticate_customer(form_data.username, form_data.password)
+    if not customer:
         raise HTTPException(
-            status_code=400, detail="Incorrect username or password"
-            )
-    user = models.CustomerInDB(**user_dict)
-    hashed_password = fake_hash_password(form_data.password)
-    if not hashed_password == user.hashed_password:
-        raise HTTPException(
-            status_code=400, detail="Incorrect username or password"
-            )
-
-    return {"access_token": user.username, "token_type": "bearer"}
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Incorrect username or password",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+    access_token_expires = timedelta(minutes=JWT_ACCESS_TOKEN_EXPIRE_MINUTES)
+    access_token = create_access_token(
+        data={"sub": customer.email}, expires_delta=access_token_expires
+    )
+    return {"access_token": access_token, "token_type": "bearer"}

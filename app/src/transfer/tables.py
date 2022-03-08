@@ -6,8 +6,8 @@ from piccolo.columns.column_types import (
     Integer,
     Numeric,
     Serial,
-    Varchar,
     Text,
+    Varchar,
 )
 from piccolo.table import Table
 

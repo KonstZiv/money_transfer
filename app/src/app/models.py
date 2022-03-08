@@ -2,13 +2,7 @@ import uuid
 from typing import Optional
 
 from app.constants import Role
-from pydantic import (
-                    BaseModel,
-                    ConstrainedStr,
-                    EmailStr,
-                    PastDate,
-                    validator
-                    )
+from pydantic import BaseModel, ConstrainedStr, EmailStr, PastDate, validator
 
 
 class StrName(ConstrainedStr):
@@ -76,4 +70,14 @@ class CustomerInDB(CustomerUpdate):
     """
     the model adds a field with the user's hashed password
     """
+
     hashed_password: str
+
+
+class Token(BaseModel):
+    access_token: str
+    token_type: str
+
+
+class TokenData(BaseModel):
+    customer_email: str | None = None

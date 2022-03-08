@@ -1,24 +1,23 @@
-from uuid import UUID
-from fastapi import Depends
-from fastapi.security import OAuth2PasswordBearer
-from passlib.context import CryptContext
+from datetime import datetime, timedelta
 
+from app.models import CustomerInDB, TokenData
 from environs import Env
-from pydantic import EmailStr, PastDate
-from app.constants import Role
-
-from app.models import CustomerInDB, CustomerUpdate, StrDocument, StrName
+from fastapi import Depends, HTTPException, status
+from fastapi.security import OAuth2PasswordBearer
+from jose import JWTError, jwt
+from passlib.context import CryptContext
 from transfer import tables
 
 env = Env()
 env.read_env()
 
 JWT_SECRET = env.str("JWT_SECRET")
-JWT_ALGORITM = env.str("JWT_ALGORITM")
+JWT_ALGORITHM = env.str("JWT_ALGORITHM")
+JWT_ACCESS_TOKEN_EXPIRE_MINUTES = env.int("JWT_ACCESS_TOKEN_EXPIRE_MINUTES")
 
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl='token')
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 
-pwd_context = CryptContext(schemes=['bcrypt'], deprecated='auto')
+pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 
 def verify_password(plain_password, hashed_password):
@@ -39,14 +38,20 @@ async def get_customer(customer_email: str) -> CustomerInDB | None:
     (the email is unique for users in the database)
     """
     customer = await tables.Customer.objects().get(
-                    tables.Customer.email == customer_email
-                                                )
+        tables.Customer.email == customer_email
+    )
     if customer:
         return CustomerInDB(**customer.to_dict())
 
 
-def authenticate_customer(customer_email: str, password: str):
-    customer = get_customer(customer_email)
+async def authenticate_customer(
+    customer_email: str, password: str
+) -> CustomerInDB | bool:
+    """
+    by login (email) and password returns all user data. In case of
+    incorrect login (email) and/or password - returns False
+    """
+    customer = await get_customer(customer_email)
     if not customer:
         return False
     if not verify_password(password, customer.hashed_password):
@@ -54,30 +59,39 @@ def authenticate_customer(customer_email: str, password: str):
     return customer
 
 
-def fake_decode_token(token):
+def create_access_token(data: dict, expires_delta: timedelta | None = None):
     """
-    имитирует получение токена, его расшифровку, сопоставление с БД
-    соотвествия токена и пользователя и возвращает пользователя,
-    соотвествующего этому токену
+    creates a token with a lifetime of expires_delta (minutes).
+    If expires_delta is not specified, the token lifetime is set to 15 minutes
     """
-    return CustomerUpdate(
-            id=1,
-            firstname=token + 'fakedecoded',
-            lastname=StrName('fakedecoded'),
-            account_id=UUID('3fa85f64-5717-4562-b3fc-2c963f66afa6'),
-            date_of_birth=PastDate(year=1985, month=3, day=2),
-            role=Role.OPERATOR,
-            document_ident_1=StrDocument('fakedecoded'),
-            document_name=StrDocument('fakedecoded'),
-            email=EmailStr('example@example.ua'),
-                )
+    to_encode = data.copy()
+    if expires_delta:
+        expire = datetime.utcnow() + expires_delta
+    else:
+        expire = datetime.utcnow() + timedelta(minutes=15)
+    to_encode.update({"exp": expire})
+    encoded_jwt = jwt.encode(to_encode, JWT_SECRET, algorithm=JWT_ALGORITHM)
+    return encoded_jwt
 
 
 async def get_current_user(token: str = Depends(oauth2_scheme)):
     """
-    имитирует получение текущего пользователя по декодированному токену
-    через функцию fake_decode_token в случае если токен есть проходит
-    декодирование
+    gets the current user by decoded token if the token passes decoding
     """
-    user = fake_decode_token(token)
-    return user
+    credentials_exception = HTTPException(
+        status_code=status.HTTP_401_UNAUTHORIZED,
+        detail="Could not validate credentials",
+        headers={"WWW-Authenticate": "Bearer"},
+    )
+    try:
+        payload = jwt.decode(token, JWT_SECRET, algorithms=[JWT_ALGORITHM])
+        customer_email = payload.get("sub")
+        if customer_email is None:
+            raise credentials_exception
+        token_data = TokenData(customer_email=customer_email)
+    except JWTError:
+        raise credentials_exception
+    customer = await get_customer(customer_email=token_data.customer_email)
+    if customer is None:
+        raise credentials_exception
+    return customer
