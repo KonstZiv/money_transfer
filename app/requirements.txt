@@ -10,4 +10,5 @@ lxml
 pandas
 Faker
 pydantic[email]
-PyJWT
+python-jose[cryptography]
+passlib[bcrypt]

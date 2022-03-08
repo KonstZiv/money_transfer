@@ -6,7 +6,6 @@ from pydantic import (
                     BaseModel,
                     ConstrainedStr,
                     EmailStr,
-                    Field,
                     PastDate,
                     validator
                     )
@@ -67,7 +66,10 @@ class CustomerUpdate(CustomerCreate):
     role: Role = Role.CUSTOMER
     document_name: StrDocument
     document_ident_1: StrDocument
-    document_ident_2: str = Field(None, max_length=50)
+    document_ident_2: Optional[StrDocument] = None
 
     class Config:
         orm_mode = True
+
+class CustomerInDB(CustomerUpdate):
+    hashed_password: str
