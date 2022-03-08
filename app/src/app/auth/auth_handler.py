@@ -26,6 +26,10 @@ def verify_password(plain_password, hashed_password):
 
 
 def get_password_hash(password):
+    """
+    returns a hashed password for the 'password' argument,
+    uses the bcrypt algorithm (module passlib)
+    """
     return pwd_context.hash(password)
 
 
