@@ -1,11 +1,10 @@
 from datetime import datetime, timedelta
 
-from app.models import CustomerInDB, TokenData
+from app.models import CustomerInDB, TokenData, pwd_context
 from environs import Env
 from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
 from jose import JWTError, jwt
-from passlib.context import CryptContext
 from transfer import tables
 
 env = Env()
@@ -16,18 +15,6 @@ JWT_ALGORITHM = env.str("JWT_ALGORITHM")
 JWT_ACCESS_TOKEN_EXPIRE_MINUTES = env.int("JWT_ACCESS_TOKEN_EXPIRE_MINUTES")
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
-
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
-
-
-def verify_password(plain_password: str, hashed_password: str) -> bool:
-    """
-    compares the received password (plain_password ) with the hashed
-    password value stored in the database (hashed_password).
-    Returns True on a match (when using the schema defined
-    for the pvd_context instance) and False otherwise.
-    """
-    return pwd_context.verify(plain_password, hashed_password)
 
 
 def get_password_hash(password: str) -> str:
@@ -58,7 +45,7 @@ async def authenticate_customer(
     incorrect login (email) and/or password - returns False
     """
     customer = await get_customer(customer_email)
-    if not customer or not verify_password(password, customer.hashed_password):
+    if not customer or not customer.verify(password):
         return False
     return customer
 

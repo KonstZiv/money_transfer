@@ -2,7 +2,10 @@ import uuid
 from typing import Optional
 
 from app.constants import Role
+from passlib.context import CryptContext
 from pydantic import BaseModel, ConstrainedStr, EmailStr, PastDate, validator
+
+pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 
 class StrName(ConstrainedStr):
@@ -72,6 +75,15 @@ class CustomerInDB(CustomerUpdate):
     """
 
     hashed_password: str
+
+    def verify(self, plain_password):
+        """
+        compares the received password (plain_password) with the hashed
+        password value stored in the database (self.hashed_password).
+        Returns True on a match (when using the schema defined
+        for the pvd_context instance) and False otherwise.
+        """
+        return pwd_context.verify(plain_password, self.hashed_password)
 
 
 class Token(BaseModel):
