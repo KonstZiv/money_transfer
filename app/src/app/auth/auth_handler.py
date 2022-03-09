@@ -51,15 +51,14 @@ async def get_customer(customer_email: str) -> CustomerInDB | None:
 
 
 async def authenticate_customer(
-                    customer_email: str, 
-                    password: str
-                        ) -> CustomerInDB | bool:
+    customer_email: str, password: str
+) -> CustomerInDB | bool:
     """
     by login (email) and password returns all user data. In case of
     incorrect login (email) and/or password - returns False
     """
     customer = await get_customer(customer_email)
-    if (not customer) or (not verify_password(password, customer.hashed_password)):
+    if not customer or not verify_password(password, customer.hashed_password):
         return False
     return customer
 

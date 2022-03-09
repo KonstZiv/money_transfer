@@ -76,8 +76,9 @@ class CustomerInDB(CustomerUpdate):
 
 class Token(BaseModel):
     """
-    model for response when forming a token 
+    model for response when forming a token
     """
+
     access_token: str
 
 
@@ -85,4 +86,5 @@ class TokenData(BaseModel):
     """
     token payload model
     """
+
     customer_email: str | None = None
