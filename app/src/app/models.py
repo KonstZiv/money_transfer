@@ -29,21 +29,21 @@ class CustomerCreate(BaseModel):
     checking: pastedata, email
     """
 
-    account_id: Optional[uuid.UUID] = None
+    account_id: uuid.UUID | None = None
     firstname: StrName
     lastname: StrName
-    date_of_birth: Optional[PastDate] = None
+    date_of_birth: PastDate | None = None
     role: Optional[Role] = None
-    document_name: Optional[StrDocument] = None
-    document_ident_1: Optional[StrDocument] = None
-    document_ident_2: Optional[StrDocument] = None
+    document_name: StrDocument | None = None
+    document_ident_1: StrDocument | None = None
+    document_ident_2: StrDocument | None = None
     email: EmailStr
 
     class Config:
         orm_mode = True
 
     @validator("account_id", pre=True, always=True)
-    def set_account_id_if_none(cls, account_id):
+    def set_account_id_if_none(cls, account_id) -> uuid.UUID:
         return account_id or uuid.uuid4()
 
 
@@ -60,7 +60,7 @@ class CustomerUpdate(CustomerCreate):
     role: Role = Role.CUSTOMER
     document_name: StrDocument
     document_ident_1: StrDocument
-    document_ident_2: Optional[StrDocument] = None
+    document_ident_2: StrDocument | None = None
 
     class Config:
         orm_mode = True
@@ -75,9 +75,14 @@ class CustomerInDB(CustomerUpdate):
 
 
 class Token(BaseModel):
+    """
+    model for response when forming a token 
+    """
     access_token: str
-    token_type: str
 
 
 class TokenData(BaseModel):
+    """
+    token payload model
+    """
     customer_email: str | None = None

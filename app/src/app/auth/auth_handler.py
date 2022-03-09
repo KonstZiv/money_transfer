@@ -20,11 +20,17 @@ oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 
-def verify_password(plain_password, hashed_password):
+def verify_password(plain_password: str, hashed_password: str) -> bool:
+    """
+    compares the received password (plain_password ) with the hashed
+    password value stored in the database (hashed_password).
+    Returns True on a match (when using the schema defined
+    for the pvd_context instance) and False otherwise.
+    """
     return pwd_context.verify(plain_password, hashed_password)
 
 
-def get_password_hash(password):
+def get_password_hash(password: str) -> str:
     """
     returns a hashed password for the 'password' argument,
     uses the bcrypt algorithm (module passlib)
@@ -45,21 +51,20 @@ async def get_customer(customer_email: str) -> CustomerInDB | None:
 
 
 async def authenticate_customer(
-    customer_email: str, password: str
-) -> CustomerInDB | bool:
+                    customer_email: str, 
+                    password: str
+                        ) -> CustomerInDB | bool:
     """
     by login (email) and password returns all user data. In case of
     incorrect login (email) and/or password - returns False
     """
     customer = await get_customer(customer_email)
-    if not customer:
-        return False
-    if not verify_password(password, customer.hashed_password):
+    if (not customer) or (not verify_password(password, customer.hashed_password)):
         return False
     return customer
 
 
-def create_access_token(data: dict, expires_delta: timedelta | None = None):
+def create_access_token(data: dict, expires_delta: timedelta | None = None) -> str:
     """
     creates a token with a lifetime of expires_delta (minutes).
     If expires_delta is not specified, the token lifetime is set to 15 minutes
@@ -74,7 +79,7 @@ def create_access_token(data: dict, expires_delta: timedelta | None = None):
     return encoded_jwt
 
 
-async def get_current_user(token: str = Depends(oauth2_scheme)):
+async def get_current_user(token: str = Depends(oauth2_scheme)) -> CustomerInDB:
     """
     gets the current user by decoded token if the token passes decoding
     """
@@ -85,13 +90,12 @@ async def get_current_user(token: str = Depends(oauth2_scheme)):
     )
     try:
         payload = jwt.decode(token, JWT_SECRET, algorithms=[JWT_ALGORITHM])
-        customer_email = payload.get("sub")
-        if customer_email is None:
+        if not (customer_email := payload.get("sub")):
             raise credentials_exception
         token_data = TokenData(customer_email=customer_email)
     except JWTError:
         raise credentials_exception
     customer = await get_customer(customer_email=token_data.customer_email)
-    if customer is None:
+    if not customer:
         raise credentials_exception
     return customer
