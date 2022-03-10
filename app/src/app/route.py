@@ -5,6 +5,7 @@ from app.auth.auth_handler import (
     authenticate_customer,
     create_access_token,
     get_current_user,
+    only_admin_or_operator,
 )
 from fastapi import Depends, FastAPI, HTTPException, status
 from fastapi.security import OAuth2PasswordRequestForm
@@ -42,6 +43,7 @@ async def create_user(
 @app.put("/users/", response_model=models.CustomerCreate, tags=["user"])
 async def update_user(
     user: models.CustomerUpdate,
+    current_customer: models.CustomerInDB = Depends(only_admin_or_operator),
 ):
     """
     Operation: updating an existing user

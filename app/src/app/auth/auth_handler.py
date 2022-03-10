@@ -1,5 +1,6 @@
 from datetime import datetime, timedelta
 
+from app.constants import Role
 from app.models import CustomerInDB, TokenData, pwd_context
 from environs import Env
 from fastapi import Depends, HTTPException, status
@@ -85,3 +86,39 @@ async def get_current_user(token: str = Depends(oauth2_scheme)) -> CustomerInDB:
     if not customer:
         raise credentials_exception
     return customer
+
+
+async def only_admin(
+    customer: CustomerInDB = Depends(get_current_user),
+) -> CustomerInDB:
+    """
+    returns the current user in case he has administrator rights
+    (tables.Customer.role == Role.ADMIN), otherwise, access is
+    denied with a 403 HTTP error
+    """
+    access_denied_exception = HTTPException(
+        status_code=status.HTTP_403_FORBIDDEN,
+        detail="Access denied. Access allowed only with administrator rights.",
+        headers={"WWW-Authenticate": "Bearer"},
+    )
+    if customer.role == Role.ADMIN:
+        return customer
+    raise access_denied_exception
+
+
+async def only_admin_or_operator(
+    customer: CustomerInDB = Depends(get_current_user),
+) -> CustomerInDB:
+    """
+    returns the current user in case he has administrator rights
+    (tables.Customer.role == Role.ADMIN or tables.Customer.role == Role.OPERATOR),
+    otherwise, access is denied with a 403 HTTP error
+    """
+    access_denied_exception = HTTPException(
+        status_code=status.HTTP_403_FORBIDDEN,
+        detail="Access denied. Access allowed only with administrator or operator rights.",
+        headers={"WWW-Authenticate": "Bearer"},
+    )
+    if customer.role == Role.ADMIN or customer.role == Role.OPERATOR:
+        return customer
+    raise access_denied_exception
