@@ -1,5 +1,4 @@
 import uuid
-from typing import Optional
 
 from app.constants import Role
 from passlib.context import CryptContext
@@ -36,7 +35,7 @@ class CustomerCreate(BaseModel):
     firstname: StrName
     lastname: StrName
     date_of_birth: PastDate | None = None
-    role: Optional[Role] = None
+    role: Role | None = None
     document_name: StrDocument | None = None
     document_ident_1: StrDocument | None = None
     document_ident_2: StrDocument | None = None
