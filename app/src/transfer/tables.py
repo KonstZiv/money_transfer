@@ -6,6 +6,7 @@ from piccolo.columns.column_types import (
     Integer,
     Numeric,
     Serial,
+    Text,
     Varchar,
 )
 from piccolo.table import Table
@@ -26,9 +27,10 @@ class Customer(Table):
     document_ident_1 = Varchar(length=50, null=True)
     document_ident_2 = Varchar(length=50, null=True)
     email = Varchar(length=255, unique=True, index=True)
+    hashed_password = Text(null=True)
 
 
-class Currency(Table):  #
+class Currency(Table):
     """
     this class describe kind of currency (ISO code), with may be in the system,
     according with https://en.wikipedia.org/wiki/List_of_circulating_currencies

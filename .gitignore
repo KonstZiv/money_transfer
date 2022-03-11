@@ -199,3 +199,8 @@ pip-selfcheck.json
 .history
 .ionide
 postgres_data/
+.idea/
+.idea
+.vscode/
+.vscode
+python
